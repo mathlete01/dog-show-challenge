@@ -110,13 +110,13 @@
     },
     {
       "id": 19,
-      "name": "Penny",
-      "breed": "Wheaten Terrier",
-      "sex": "male"
+      "name": "PennyLoafer",
+      "breed": "Wheaten Perrier",
+      "sex": "malee"
     },
     {
       "id": 20,
-      "name": "Coco",
+      "name": "CocoPeru",
       "breed": "Affenpinscher",
       "sex": "female"
     }

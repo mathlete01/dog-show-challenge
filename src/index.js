@@ -1,77 +1,83 @@
+const DOGSURL = "http://localhost:3000/dogs"
+console.log(5)
 document.addEventListener('DOMContentLoaded', () => {
-    const table = document.getElementById("table-body")
-    let url = "http://localhost:3000/dogs"
-    jsonObj = ""
-    const form = document.getElementById("dog-form")
-    const formName = document.getElementsByName("name")[0]
-    const formBreed = document.getElementsByName("breed")[0]
-    const formSex = document.getElementsByName("sex")[0]
-    let editID = ""
 
-    function saveEdit(event){
-        let source = `${url}/${editID}`
-        fetch(source, {
-            method: "PATCH",
-            headers:{
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({ 
-                "name": formName.value,
-                "sex": formSex.value,
-                "breed": formBreed.value
+    const table = document.getElementById("table-body")
+    const form = document.getElementById("dog-form")
+    form.addEventListener("submit", function(event){
+        console.log(`clicked!`)
+        json = ""
+        const formName = document.getElementsByName("name")[0]
+        const formBreed = document.getElementsByName("breed")[0]
+        const formSex = document.getElementsByName("sex")[0]
+        let editID = ""
+
+        function saveEdit(event){
+            let source = `${DOGSURL}/${form.dataset.id}`
+            fetch(source, {
+                method: "PATCH",
+                headers:{
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ 
+                    "name": formName.value,
+                    "sex": formSex.value,
+                    "breed": formBreed.value
+                })
             })
-        })
-        fetchContent(url)
+        fetchContent(DOGSURL)
     }
 
-    form.addEventListener("submit", function(event){
         event.preventDefault()
         saveEdit(event)
     })
 
-    function fetchContent(url){
-        fetch(url)
-        .then(function(response){
-            return response.json();
-        })
-        .then(function(response){
-            jsonObj = response
-            createTable()
-        })
+    function fetchContent(){
+        fetch(DOGSURL)
+        .then(response => response.json())
+        .then(json => renderTable(json))
     }
 
-    function editDog(event, dog){
-        formName.value = dog.name
-        formBreed.value = dog.breed
-        formSex.value = dog.sex
-        editID = dog.id
+    //function editDog(event, dog){
+    function editDog(dog){
+        form.name.value = dog.name
+        form.breed.value = dog.breed
+        form.sex.value = dog.sex
+        form.dataset.id = dog.id
+        //editID = dog.id
     }
 
-    function createTable(){
+    function renderTable(dogs){
         table.innerHTML = ""
-        let dogs = jsonObj
-        for (const dog of dogs){
-            let row = document.createElement("tr")
-            let name = document.createElement("td")
-            let breed = document.createElement("td")
-            let sex = document.createElement("td")
-            let edit = document.createElement("button")
-            
-            name.innerText = dog.name
-            breed.innerText = dog.breed
-            sex.innerText = dog.sex
-            edit.innerText = "Edit"
-
-            edit.addEventListener("click", (event) => editDog(event, dog))
-
-            row.appendChild(name)
-            row.appendChild(breed)
-            row.appendChild(sex)
-            row.appendChild(edit)
-            table.appendChild(row)
+        for (dog of dogs){
+            renderDog(dog)
         }
     }
 
-    fetchContent(url)
+    function renderDog(dog){
+        let row = document.createElement("tr")
+        row.id = dog.id
+
+        let name = document.createElement("td")
+        name.innerText = dog.name
+
+        let breed = document.createElement("td")
+        breed.innerText = dog.breed
+
+        let sex = document.createElement("td")
+        sex.innerText = dog.sex
+
+        let edit = document.createElement("button")
+        edit.innerText = "Edit"
+        edit.addEventListener("click", (event) => editDog(dog))
+
+        let editArea = document.createElement("td")
+        editArea.appendChild(edit)
+
+        row.append(name, breed, sex, editArea)
+        table.prepend(row)
+    }
+
+    fetchContent()
 })
